@@ -2,12 +2,14 @@ package common
 
 import (
 	"context"
+	"os"
 	"testing"
 
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm/policy"
+	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
+	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/network/armnetwork/v5"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/launchbynttdata/lcaf-component-terratest/lib/azure/configure"
-	"github.com/launchbynttdata/lcaf-component-terratest/lib/azure/login"
-	"github.com/launchbynttdata/lcaf-component-terratest/lib/azure/network"
 	"github.com/launchbynttdata/lcaf-component-terratest/types"
 	"github.com/stretchr/testify/assert"
 )
@@ -16,32 +18,34 @@ const terraformDir string = "../../examples/route"
 const varFile string = "test.tfvars"
 
 func TestRoutes(t *testing.T, ctx types.TestContext) {
-
-	envVarMap := login.GetEnvironmentVariables()
-	clientID := envVarMap["clientID"]
-	clientSecret := envVarMap["clientSecret"]
-	tenantID := envVarMap["tenantID"]
-	subscriptionID := envVarMap["subscriptionID"]
-
-	spt, err := login.GetServicePrincipalToken(clientID, clientSecret, tenantID)
-	if err != nil {
-		t.Fatalf("Error getting Service Principal Token: %v", err)
+	subscriptionID := os.Getenv("ARM_SUBSCRIPTION_ID")
+	if subscriptionID == "" {
+		t.Fatalf("ARM_SUBSCRIPTION_ID must be set for acceptance tests")
 	}
-
-	routeTableClient := network.GetRouteTablesClient(spt, subscriptionID)
+	credential, err := azidentity.NewDefaultAzureCredential(nil)
+	if err != nil {
+		t.Fatalf("Error getting credentials: %e\n", err)
+	}
+	routeTablesClientOptions := policy.ClientOptions{}
+	clientFactory, err := armnetwork.NewClientFactory(subscriptionID, credential, &routeTablesClientOptions)
+	if err != nil {
+		t.Fatalf("Error creating client factory: %e\n", err)
+	}
+	routeTableClient := clientFactory.NewRouteTablesClient()
 	terraformOptions := configure.ConfigureTerraform(terraformDir, []string{terraformDir + "/" + varFile})
 	t.Run("doesRouteExist", func(t *testing.T) {
 		resourceGroupName := terraform.Output(t, terraformOptions, "resource_group_name")
 		routeTableName := terraform.Output(t, ctx.TerratestTerraformOptions(), "route_table_name")
 		routeNames := terraform.OutputMap(t, ctx.TerratestTerraformOptions(), "route_names")
 		expectedRouteNames := make(map[string]bool)
+		options := armnetwork.RouteTablesClientGetOptions{}
 
 		// Set all expected routes to false
 		for _, v := range routeNames {
 			expectedRouteNames[v] = false
 		}
 
-		routeTable, err := routeTableClient.Get(context.Background(), resourceGroupName, routeTableName, "")
+		routeTable, err := routeTableClient.Get(context.Background(), resourceGroupName, routeTableName, &options)
 		if err != nil {
 			t.Fatalf("Error getting Route Table: %v", err)
 		}
@@ -51,9 +55,10 @@ func TestRoutes(t *testing.T, ctx types.TestContext) {
 
 		// If expected route matches with actual route, set the map value to true
 		for expectedRoute := range expectedRouteNames {
-			routes := routeTable.RouteTablePropertiesFormat.Routes
+			// routes := routeTable.RouteTablePropertiesFormat.Routes
+			routes := routeTable.RouteTable.Properties.Routes
 
-			for _, route := range *routes {
+			for _, route := range routes {
 				if expectedRoute == *route.Name {
 					expectedRouteNames[expectedRoute] = true
 					break
