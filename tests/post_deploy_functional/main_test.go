@@ -38,5 +38,5 @@ func TestRoutesModule(t *testing.T) {
 		}).
 		Build()
 
-	lib.RunSetupTestTeardown(t, *ctx, testimpl.TestRoutes)
+	lib.RunSetupTestTeardown(t, *ctx, testimpl.TestComposableRoutes)
 }

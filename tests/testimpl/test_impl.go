@@ -17,7 +17,7 @@ import (
 const terraformDir string = "../../examples/route"
 const varFile string = "test.tfvars"
 
-func TestRoutes(t *testing.T, ctx types.TestContext) {
+func TestComposableRoutes(t *testing.T, ctx types.TestContext) {
 	subscriptionID := os.Getenv("ARM_SUBSCRIPTION_ID")
 	if subscriptionID == "" {
 		t.Fatalf("ARM_SUBSCRIPTION_ID must be set for acceptance tests")
