@@ -56,7 +56,7 @@ func TestComposableRoutes(t *testing.T, ctx types.TestContext) {
 		// If expected route matches with actual route, set the map value to true
 		for expectedRoute := range expectedRouteNames {
 			// routes := routeTable.RouteTablePropertiesFormat.Routes
-			routes := routeTable.RouteTable.Properties.Routes
+			routes := routeTable.Properties.Routes
 
 			for _, route := range routes {
 				if expectedRoute == *route.Name {

@@ -32,7 +32,7 @@ func TestRoutesModule(t *testing.T) {
 		SetTestConfigFolderName(testConfigsExamplesFolderDefault).
 		SetTestConfigFileName(infraTFVarFileNameDefault).
 		SetTestSpecificFlags(map[string]types.TestFlags{
-			"complete": {
+			"route": {
 				"IS_TERRAFORM_IDEMPOTENT_APPLY": true,
 			},
 		}).
