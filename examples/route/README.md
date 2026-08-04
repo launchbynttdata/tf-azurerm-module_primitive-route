@@ -38,7 +38,7 @@ No resources.
 ## Outputs
 
 | Name | Description |
-|------|---------|
+|------|-------------|
 | <a name="output_ids"></a> [ids](#output\_ids) | The Route IDs. |
 | <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name) | The name of the Resource Group in which the Route Table exists. |
 | <a name="output_route_names"></a> [route\_names](#output\_route\_names) | The Route names. |
