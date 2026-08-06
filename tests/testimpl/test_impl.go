@@ -17,7 +17,7 @@ import (
 const terraformDir string = "../../examples/route"
 const varFile string = "test.tfvars"
 
-func TestRoutes(t *testing.T, ctx types.TestContext) {
+func TestComposableRoutes(t *testing.T, ctx types.TestContext) {
 	subscriptionID := os.Getenv("ARM_SUBSCRIPTION_ID")
 	if subscriptionID == "" {
 		t.Fatalf("ARM_SUBSCRIPTION_ID must be set for acceptance tests")
@@ -56,7 +56,7 @@ func TestRoutes(t *testing.T, ctx types.TestContext) {
 		// If expected route matches with actual route, set the map value to true
 		for expectedRoute := range expectedRouteNames {
 			// routes := routeTable.RouteTablePropertiesFormat.Routes
-			routes := routeTable.RouteTable.Properties.Routes
+			routes := routeTable.Properties.Routes
 
 			for _, route := range routes {
 				if expectedRoute == *route.Name {
