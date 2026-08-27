@@ -34,9 +34,9 @@ func TestComposableRoutes(t *testing.T, ctx types.TestContext) {
 	routeTableClient := clientFactory.NewRouteTablesClient()
 	terraformOptions := configure.ConfigureTerraform(terraformDir, []string{terraformDir + "/" + varFile})
 	t.Run("doesRouteExist", func(t *testing.T) {
-		resourceGroupName := terraform.Output(t, terraformOptions, "resource_group_name")
-		routeTableName := terraform.Output(t, ctx.TerratestTerraformOptions(), "route_table_name")
-		routeNames := terraform.OutputMap(t, ctx.TerratestTerraformOptions(), "route_names")
+		resourceGroupName := terraform.OutputContext(t, context.Background(), terraformOptions, "resource_group_name")
+		routeTableName := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "route_table_name")
+		routeNames := terraform.OutputMapContext(t, context.Background(), ctx.TerratestTerraformOptions(), "route_names")
 		expectedRouteNames := make(map[string]bool)
 		options := armnetwork.RouteTablesClientGetOptions{}
 
